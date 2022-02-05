@@ -40,7 +40,7 @@ namespace HonasGame.ECS
         {
             foreach(Entity e in _entities)
             {
-                e.Update(gameTime);
+                if(e.Enabled) e.Update(gameTime);
             }
         }
 

@@ -10,6 +10,8 @@ namespace HonasGame.ECS
     {
         private List<Component> _components;
 
+        public bool Enabled { get; set; } = true;
+
         public Entity()
         {
             _components = new List<Component>();
@@ -19,7 +21,7 @@ namespace HonasGame.ECS
         {
             foreach(Component c in _components)
             {
-                c.Update(gameTime);
+                if(c.Enabled) c.Update(gameTime);
             }
         }
 
