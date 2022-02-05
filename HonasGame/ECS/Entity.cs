@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,6 +13,22 @@ namespace HonasGame.ECS
         public Entity()
         {
             _components = new List<Component>();
+        }
+
+        public virtual void Update(GameTime gameTime)
+        {
+            foreach(Component c in _components)
+            {
+                c.Update(gameTime);
+            }
+        }
+
+        public virtual void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            foreach (Component c in _components)
+            {
+                c.Draw(gameTime, spriteBatch);
+            }
         }
 
         public void RegisterComponent(Component component)

@@ -5,6 +5,14 @@ namespace HonasGame.ECS
 {
     public abstract class Component
     {
+        protected Entity _parentEntity;
+
+        public Component(Entity parent)
+        {
+            parent.RegisterComponent(this);
+            _parentEntity = parent;
+        }
+
         public virtual void Update(GameTime gameTime)
         {
             // Do nothing
