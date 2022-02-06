@@ -32,5 +32,17 @@ namespace HonasGame.JSON
 
             throw new Exception($"Object {o} is not of given type.");
         }
+
+        public T TryGetValue<T>(string key)
+        {
+            object o = Fields[key];
+
+            if (o is T retObj)
+            {
+                return retObj;
+            }
+
+            return default(T);
+        }
     }
 }

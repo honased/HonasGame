@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace HonasGame.JSON
@@ -58,6 +59,14 @@ namespace HonasGame.JSON
             else
             {
                 throw new Exception("Err: JSON must start with object or array");
+            }
+        }
+
+        public static object FromFile(string path)
+        {
+            using (StreamReader reader = new StreamReader(path))
+            {
+                return ReadJSON(reader.ReadToEnd());
             }
         }
 

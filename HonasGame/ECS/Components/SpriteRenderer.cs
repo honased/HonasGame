@@ -21,6 +21,7 @@ namespace HonasGame.ECS.Components
         public Vector2 Origin { get; set; }
         public Color Color { get; set; } = Color.White;
         public float Rotation { get; set; }
+        public SpriteEffects SpriteEffects { get; set; } = SpriteEffects.None;
 
         public Sprite Sprite
         {
@@ -37,6 +38,8 @@ namespace HonasGame.ECS.Components
             get => _animationName;
             set
             {
+                if (_animationName == value) return;
+                
                 _animationName = value;
                 ResetRenderData();
                 if(!_sprite.Animations.TryGetValue(_animationName, out _animation))
@@ -78,7 +81,7 @@ namespace HonasGame.ECS.Components
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_sprite.Texture, _position.Position, _animation.Frames[_frameIndex], Color, Rotation, Origin, Scale, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(_sprite.Texture, _position.Position, _animation.Frames[_frameIndex], Color, Rotation, Origin, Scale, SpriteEffects, 0.0f);
         }
 
         private void ResetRenderData()

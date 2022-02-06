@@ -12,7 +12,6 @@ namespace HonasGame.Tiled
         public int Width { get; private set; }
         public int Height { get; private set; }
         public int Id { get; private set; }
-        public int GID { get; private set; }
         public string Name { get; private set; }
         public string Type { get; private set; }
 
@@ -23,7 +22,6 @@ namespace HonasGame.Tiled
             Width = (int)jObj.GetValue<double>("width");
             Height = (int)jObj.GetValue<double>("height");
             Id = (int)jObj.GetValue<double>("id");
-            GID = (int)jObj.GetValue<double>("gid");
             Name = jObj.GetValue<string>("name");
             Type = jObj.GetValue<string>("type");
         }

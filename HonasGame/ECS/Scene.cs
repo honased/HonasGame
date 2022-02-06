@@ -4,26 +4,21 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace HonasGame.ECS
 {
-    public class Scene
+    public static class Scene
     {
-        private List<Entity> _entities;
+        private static List<Entity> _entities = new List<Entity>();
 
-        public Scene()
-        {
-            _entities = new List<Entity>();
-        }
-
-        public void AddEntity(Entity e)
+        public static void AddEntity(Entity e)
         {
             _entities.Add(e);
         }
 
-        public void RemoveEntity(Entity e)
+        public static void RemoveEntity(Entity e)
         {
             _entities.Remove(e);
         }
 
-        public T GetEntity<T>() where T : Entity
+        public static T GetEntity<T>() where T : Entity
         {
             foreach(Entity e in _entities)
             {
@@ -36,7 +31,15 @@ namespace HonasGame.ECS
             return null;
         }
 
-        public void Update(GameTime gameTime)
+        public static IEnumerable<Entity> GetEntities()
+        {
+            foreach(Entity e in _entities)
+            {
+                yield return e;
+            }
+        }
+
+        public static void Update(GameTime gameTime)
         {
             foreach(Entity e in _entities)
             {
@@ -44,7 +47,7 @@ namespace HonasGame.ECS
             }
         }
 
-        public void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public static void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             foreach(Entity e in _entities)
             {
