@@ -63,5 +63,15 @@ namespace HonasGame.ECS
 
             return null;
         }
+
+        public void Destroy()
+        {
+            Scene.RemoveEntity(this);
+            Enabled = false;
+            Cleanup();
+            _components.Clear();
+        }
+
+        protected abstract void Cleanup();
     }
 }

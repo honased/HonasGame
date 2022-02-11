@@ -18,7 +18,7 @@ namespace HonasGame.ECS.Components
         private int _frameIndex;
 
         public Vector2 Scale { get; set; } = Vector2.One;
-        public Vector2 Origin { get; set; }
+        public Vector2 Origin { get; set; } = Vector2.Zero;
         public Color Color { get; set; } = Color.White;
         public float Rotation { get; set; }
         public SpriteEffects SpriteEffects { get; set; } = SpriteEffects.None;
@@ -81,7 +81,8 @@ namespace HonasGame.ECS.Components
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_sprite.Texture, _position.Position, _animation.Frames[_frameIndex], Color, Rotation, Origin, Scale, SpriteEffects, 0.0f);
+            if(_animation.Frames != null) spriteBatch.Draw(_sprite.Texture, _position.Position, _animation.Frames[_frameIndex], Color, Rotation, Origin, Scale, SpriteEffects, 0.0f);
+            else spriteBatch.Draw(_sprite.Texture, _position.Position, null, Color, Rotation, Origin, Scale, SpriteEffects, 0.0f);
         }
 
         private void ResetRenderData()

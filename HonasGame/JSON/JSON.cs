@@ -127,7 +127,6 @@ namespace HonasGame.JSON
 
                     default:
                         throw new Exception($"Err: Expected data value, got {token.Type} at {token.Line}:{token.Space}.");
-                        break;
                 }
 
                 token = GetToken();
@@ -143,7 +142,6 @@ namespace HonasGame.JSON
 
                     default:
                         throw new Exception($"Err: Expected comma or close curly, got {token.Type} at {token.Line}:{token.Space}.");
-                        break;
                 }
             }
 
@@ -175,7 +173,6 @@ namespace HonasGame.JSON
 
                     default:
                         throw new Exception($"Unexpected token {token.Type} for array field at {token.Line}:{token.Space}");
-                        break;
                 }
 
                 token = GetToken();
@@ -191,7 +188,6 @@ namespace HonasGame.JSON
 
                     default:
                         throw new Exception($"Err: Expected comma or close bracket, got {token.Type} at {token.Line}:{token.Space}.");
-                        break;
                 }
             }
 

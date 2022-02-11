@@ -23,7 +23,7 @@ namespace HonasGame.ECS.Components.Physics
 
             foreach(Entity e in Scene.GetEntities())
             {
-                if(e != Parent && e is T)
+                if(e != Parent && e is T && e.Enabled)
                 {
                     foreach(Component c in e.GetComponents())
                     {
@@ -40,22 +40,32 @@ namespace HonasGame.ECS.Components.Physics
 
         public bool CollidesWith(int tag)
         {
-            return CollidesWith(tag, Vector2.Zero);
+            return CollidesWith(tag, Vector2.Zero, out var e);
         }
 
-        public bool CollidesWith(int tag, Vector2 offset)
+        public bool CollidesWith(int tag, out Entity e)
         {
+            return CollidesWith(tag, Vector2.Zero, out e);
+        }
+
+        public bool CollidesWith(int tag, Vector2 offset, out Entity entity)
+        {
+            entity = null;
             if (Shape == null) return false;
 
             foreach (Entity e in Scene.GetEntities())
             {
-                if (e != Parent)
+                if (e != Parent && e.Enabled)
                 {
                     foreach (Component c in e.GetComponents())
                     {
                         if (c is Collider2D collider && (collider.Tag & tag) > 0)
                         {
-                            if (Shape.CollidesWith(collider.Shape, offset)) return true;
+                            if (Shape.CollidesWith(collider.Shape, offset))
+                            {
+                                entity = e;
+                                return true;
+                            }
                         }
                     }
                 }

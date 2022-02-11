@@ -20,7 +20,7 @@ namespace HonasGame.ECS.Components.Physics
             int xAmount = (int)Math.Round(velocity);
 
             int sign = Math.Sign(xAmount);
-            while(!_collider.CollidesWith(tag, Vector2.UnitX * sign) && xAmount != 0) 
+            while(!_collider.CollidesWith(tag, Vector2.UnitX * sign, out var e) && xAmount != 0) 
             { 
                 xAmount -= sign;
                 _transform.Position += Vector2.UnitX * sign;
@@ -35,7 +35,7 @@ namespace HonasGame.ECS.Components.Physics
             int yAmount = (int)Math.Round(velocity);
 
             int sign = Math.Sign(yAmount);
-            while (!_collider.CollidesWith(tag, Vector2.UnitY * sign) && yAmount != 0)
+            while (!_collider.CollidesWith(tag, Vector2.UnitY * sign, out var e) && yAmount != 0)
             {
                 yAmount -= sign;
                 _transform.Position += Vector2.UnitY * sign;

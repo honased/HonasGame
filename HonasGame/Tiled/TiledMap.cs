@@ -15,10 +15,6 @@ namespace HonasGame.Tiled
         private const uint FLIPPED_DIAGONALLY   = 0x20000000;
         private const uint FLIPPED_HEXAGONAL    = 0x10000000;
 
-        private VertexBuffer vertexBuffer;
-        private IndexBuffer indexBuffer;
-        private int primitives;
-
         private class Tileset
         {
             public int FirstGid { get; private set; }
