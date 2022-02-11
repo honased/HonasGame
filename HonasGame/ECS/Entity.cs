@@ -12,6 +12,8 @@ namespace HonasGame.ECS
 
         public bool Enabled { get; set; } = true;
 
+        public bool Destroyed { get; private set; } = false;
+
         public Entity()
         {
             _components = new List<Component>();
@@ -66,10 +68,12 @@ namespace HonasGame.ECS
 
         public void Destroy()
         {
-            Scene.RemoveEntity(this);
+            if (Destroyed) return;
+
             Enabled = false;
             Cleanup();
             _components.Clear();
+            Destroyed = true;
         }
 
         protected abstract void Cleanup();
