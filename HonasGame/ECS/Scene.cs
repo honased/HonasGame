@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -6,21 +7,37 @@ namespace HonasGame.ECS
 {
     public static class Scene
     {
-        private static List<Entity> _entities = new List<Entity>();
-        private static List<Entity> _addEntities = new List<Entity>();
+        private static List<List<Entity>> _entities = new List<List<Entity>>();
+        private static List<string> _layers = new List<string>();
+        private static List<Tuple<string, Entity>> _addEntities = new List<Tuple<string, Entity>>();
 
-        public static void AddEntity(Entity e)
+        public static void AddLayer(string layer)
         {
-            _addEntities.Add(e);
+            if(_layers.Contains(layer))
+            {
+                throw new System.Exception($"Layer '{layer}' already exists!");
+            }
+
+            _layers.Add(layer);
+            _entities.Add(new List<Entity>());
+        }
+
+        public static void AddEntity(Entity e, string layer = null)
+        {
+            if (layer == null) layer = _layers[0];
+            _addEntities.Add(new Tuple<string, Entity>(layer, e));
         }
 
         public static T GetEntity<T>() where T : Entity
         {
-            foreach(Entity e in _entities)
+            foreach(List<Entity> le in _entities)
             {
-                if(e is T entity)
+                foreach (Entity e in le)
                 {
-                    return entity;
+                    if (e is T entity)
+                    {
+                        return entity;
+                    }
                 }
             }
 
@@ -29,14 +46,17 @@ namespace HonasGame.ECS
 
         public static IEnumerable<Entity> GetEntities()
         {
-            foreach(Entity e in _entities)
+            foreach (List<Entity> le in _entities)
             {
-                yield return e;
+                foreach (Entity e in le)
+                {
+                    yield return e;
+                }
             }
 
-            foreach (Entity e in _addEntities)
+            foreach (Tuple<string, Entity> tuple in _addEntities)
             {
-                yield return e;
+                yield return tuple.Item2;
             }
         }
 
@@ -46,40 +66,56 @@ namespace HonasGame.ECS
 
             while (_addEntities.Count > 0)
             {
-                if(!_addEntities[0].Destroyed) _entities.Add(_addEntities[0]);
+                if (!_addEntities[0].Item2.Destroyed)
+                {
+                    string layer = _addEntities[0].Item1;
+                    int index = _layers.IndexOf(layer);
+                    if (index == -1) throw new Exception($"Layer '{layer}' does not exist!");
+                    _entities[index].Add(_addEntities[0].Item2);
+                }
                 _addEntities.RemoveAt(0);
             }
 
-            for(int i = 0; i < _entities.Count; i++)
+            for (int j = 0; j < _entities.Count; j++)
             {
-                Entity e = _entities[i];
-                if(e.Destroyed)
+                List<Entity> entitiesList = _entities[j];
+                for (int i = 0; i < entitiesList.Count; i++)
                 {
-                    _entities.RemoveAt(i);
-                    i--;
+                    Entity e = entitiesList[i];
+                    if (e.Destroyed)
+                    {
+                        entitiesList.RemoveAt(i);
+                        i--;
+                    }
+                    else if (e.Enabled) e.Update(gameTime);
                 }
-                else if(e.Enabled) e.Update(gameTime);
             }
         }
 
         public static void Clear(Entity exclude = null)
         {
-            foreach(Entity e in _addEntities)
+            foreach(var tuple in _addEntities)
             {
-                if(e != exclude) e.Destroy();
+                if(tuple.Item2 != exclude) tuple.Item2.Destroy();
             }
 
-            foreach(Entity e in _entities)
+            for (int i = 0; i < _layers.Count; i++)
             {
-                if (e != exclude) e.Destroy();
+                foreach (Entity e in _entities[i])
+                {
+                    if (e != exclude) e.Destroy();
+                }
             }
         }
 
         public static void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-            foreach(Entity e in _entities)
+            for(int i = 0; i < _layers.Count; i++)
             {
-                e.Draw(gameTime, spriteBatch);
+                foreach (Entity e in _entities[i])
+                {
+                    e.Draw(gameTime, spriteBatch);
+                }
             }
         }
     }
