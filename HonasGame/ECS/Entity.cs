@@ -14,6 +14,8 @@ namespace HonasGame.ECS
 
         public bool Destroyed { get; private set; } = false;
 
+        public bool Persistent { get; protected set; } = false;
+
         public Entity()
         {
             _components = new List<Component>();

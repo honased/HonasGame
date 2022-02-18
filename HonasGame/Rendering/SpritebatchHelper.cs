@@ -27,5 +27,20 @@ namespace HonasGame.Rendering
 
             spriteBatch.Draw(_1Pixel, p, null, color, angle, new Vector2(0f, 0.5f), new Vector2(length, width), SpriteEffects.None, 0.0f);
         }
+
+        public static void DrawRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color, float width)
+        {
+            Vector2 tl = new Vector2(rect.Left, rect.Top);
+            Vector2 tr = new Vector2(rect.Right, rect.Top);
+            Vector2 bl = new Vector2(rect.Left, rect.Bottom);
+            Vector2 br = new Vector2(rect.Right, rect.Bottom);
+            Vector2 halfX = Vector2.UnitX * width / 2.0f;
+            Vector2 halfY = Vector2.UnitY * width / 2.0f;
+
+            spriteBatch.DrawLine(tl + halfY, tr + halfY, color, width);
+            spriteBatch.DrawLine(tr - halfX, br - halfX, color, width);
+            spriteBatch.DrawLine(br - halfY, bl - halfY, color, width);
+            spriteBatch.DrawLine(bl + halfX, tl + halfX, color, width);
+        }
     }
 }

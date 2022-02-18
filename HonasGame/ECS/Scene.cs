@@ -96,14 +96,14 @@ namespace HonasGame.ECS
         {
             foreach(var tuple in _addEntities)
             {
-                if(tuple.Item2 != exclude) tuple.Item2.Destroy();
+                if(tuple.Item2 != exclude && !tuple.Item2.Persistent) tuple.Item2.Destroy();
             }
 
             for (int i = 0; i < _layers.Count; i++)
             {
                 foreach (Entity e in _entities[i])
                 {
-                    if (e != exclude) e.Destroy();
+                    if (e != exclude && !e.Persistent) e.Destroy();
                 }
             }
         }
