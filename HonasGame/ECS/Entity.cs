@@ -82,7 +82,10 @@ namespace HonasGame.ECS
 
             Enabled = false;
             Cleanup();
-            _components.Clear();
+            foreach(Component c in GetComponents())
+            {
+                RemoveComponent(c);
+            }
             Destroyed = true;
         }
 
