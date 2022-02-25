@@ -42,5 +42,21 @@ namespace HonasGame.Rendering
             spriteBatch.DrawLine(br - halfY, bl - halfY, color, width);
             spriteBatch.DrawLine(bl + halfX, tl + halfX, color, width);
         }
+
+        public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
+        {
+            int steps = 10;
+            Vector2 origPos = new Vector2(radius, 0.0f);
+            Vector2 prevPosition = origPos;
+            Vector2 newPosition = Vector2.Zero;
+            for(int i = steps; i < 360; i+=steps)
+            {
+                float deg = MathHelper.ToRadians(i);
+                newPosition = new Vector2((float)Math.Cos(deg) * radius, (float)Math.Sin(deg) * radius);
+                spriteBatch.DrawLine(prevPosition + center, newPosition + center, color, 1.0f);
+                prevPosition = newPosition;
+            }
+            spriteBatch.DrawLine(newPosition + center, origPos + center, color, 1.0f);
+        }
     }
 }

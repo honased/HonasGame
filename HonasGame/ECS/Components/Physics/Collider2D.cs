@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using HonasGame.Rendering;
 
 namespace HonasGame.ECS.Components.Physics
 {
@@ -91,10 +89,16 @@ namespace HonasGame.ECS.Components.Physics
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
+#if DEBUG
             if( Shape is BoundingRectangle rect )
             {
-                //DrawRectangle(spriteBatch, new Rectangle((int)rect.Left - (int)rect.Origin.X, (int)rect.Top - (int)rect.Origin.Y, (int)rect.Size.X, (int)rect.Size.Y), Color.Red, 1);
+                //DrawRectangle(spriteBatch, new Rectangle((int)rect.Left, (int)rect.Top, (int)rect.Size.X, (int)rect.Size.Y), Color.Red, 1);
             }
+            else if(Shape is BoundingCircle circle)
+            {
+                //spriteBatch.DrawCircle(circle.Center, circle.Radius, Color.White);
+            }
+#endif
         }
     }
 }

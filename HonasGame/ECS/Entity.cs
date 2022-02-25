@@ -9,6 +9,7 @@ namespace HonasGame.ECS
     public abstract class Entity
     {
         private List<Component> _components;
+        private List<Component> _removeComponents;
 
         public bool Enabled { get; set; } = true;
 
@@ -19,6 +20,7 @@ namespace HonasGame.ECS
         public Entity()
         {
             _components = new List<Component>();
+            _removeComponents = new List<Component>();
         }
 
         public virtual void Update(GameTime gameTime)
@@ -26,6 +28,12 @@ namespace HonasGame.ECS
             foreach(Component c in _components)
             {
                 if(c.Enabled) c.Update(gameTime);
+            }
+
+            while(_removeComponents.Count > 0)
+            {
+                _components.Remove(_removeComponents[0]);
+                _removeComponents.RemoveAt(0);
             }
         }
 
@@ -44,7 +52,7 @@ namespace HonasGame.ECS
 
         public void RemoveComponent(Component component)
         {
-            _components.Remove(component);
+            _removeComponents.Add(component);
         }
 
         public IEnumerable<Component> GetComponents()
