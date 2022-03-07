@@ -5,7 +5,16 @@ namespace HonasGame
 {
     public static class Camera
     {
-        public static Vector2 Position { get; set; }
+        private static Vector2 _position;
+        public static Vector2 Position
+        {
+            get => _position;
+            set
+            {
+                _position = new Vector2(MathHelper.Clamp(value.X, Bounds.Left, Bounds.Right - CameraSize.X),
+                                        MathHelper.Clamp(value.Y, Bounds.Top, Bounds.Bottom - CameraSize.Y));
+            }
+        }
         public static Vector2 CameraSize { get; set; }
 
         public static Rectangle Bounds { get; set; }
@@ -26,7 +35,7 @@ namespace HonasGame
             return mat;
         }
 
-        public static void Update(GameTime gameTime)
+        internal static void Update(GameTime gameTime)
         {
             if(_shakeTimer > 0.0)
             {

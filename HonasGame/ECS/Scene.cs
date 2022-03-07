@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HonasGame.Tiled;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,6 +21,11 @@ namespace HonasGame.ECS
 
             _layers.Add(layer);
             _entities.Add(new List<Entity>());
+        }
+
+        public static void ClearLayers()
+        {
+            _layers.Clear();
         }
 
         public static void AddEntity(Entity e, string layer = null)
@@ -62,7 +68,12 @@ namespace HonasGame.ECS
 
         public static void Update(GameTime gameTime)
         {
+            Input.Update();
+#if DEBUG
+            Debugger.Update(gameTime);
+#endif
             Camera.Update(gameTime);
+            TiledManager.Update(gameTime);
 
             while (_addEntities.Count > 0)
             {

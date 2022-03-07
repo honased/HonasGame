@@ -8,16 +8,21 @@ namespace HonasGame.ECS.Components.Physics
     public abstract class CollisionShape
     {
         public Vector2 Position { get; set; }
-        public Vector2 Origin { get; set; } = Vector2.Zero;
+        public Vector2 Offset { get; set; } = Vector2.Zero;
+        public abstract float Left { get; }
+        public abstract float Right { get; }
+        public abstract float Top { get; }
+        public abstract float Bottom { get; }
+
         protected abstract bool CheckCollision(CollisionShape other, Vector2 offset);
         public bool CollidesWith(CollisionShape other)
         {
-            return CheckCollision(other, -Origin);
+            return CheckCollision(other, Vector2.Zero);
         }
 
         public bool CollidesWith(CollisionShape other, Vector2 offset)
         {
-            return CheckCollision(other, -Origin + offset);
+            return CheckCollision(other, offset);
         }
 
         protected static class CollisionResolver
@@ -45,25 +50,26 @@ namespace HonasGame.ECS.Components.Physics
     {
         public Vector2 Size { get; set; }
 
-        public float Left => Position.X - Origin.X;
-        public float Right => Position.X + Size.X - Origin.X;
-        public float Top => Position.Y - Origin.Y;
-        public float Bottom => Position.Y + Size.Y - Origin.Y;
+        public override float Left => Position.X + Offset.X;
+        public override float Right => Position.X + Size.X + Offset.X;
+        public override float Top => Position.Y + Offset.Y;
+        public override float Bottom => Position.Y + Size.Y + Offset.Y;
 
 
-        public BoundingRectangle(float x, float y, float width, float height)
+        public BoundingRectangle(float width, float height)
         {
-            Position = new Vector2(x, y);
             Size = new Vector2(width, height);
         }
 
         protected override bool CheckCollision(CollisionShape other, Vector2 offset)
         {
             if (other == null) return false;
-
             bool collision = false;
-            
-            if(other is BoundingRectangle br)
+            Vector2 origPos = Position;
+
+            Position += offset;
+
+            if (other is BoundingRectangle br)
             {
                 collision = CollisionResolver.Collides(this, br);
             }
@@ -71,6 +77,8 @@ namespace HonasGame.ECS.Components.Physics
             {
                 collision = CollisionResolver.Collides(this, bc);
             }
+
+            Position = origPos;
 
             return collision;
         }
@@ -80,11 +88,15 @@ namespace HonasGame.ECS.Components.Physics
     {
         public float Radius { get; set; }
 
-        public Vector2 Center => Position - Origin;
+        public Vector2 Center => Position + Offset;
 
-        public BoundingCircle(float x, float y, float radius)
+        public override float Left => Position.X + Offset.X - Radius;
+        public override float Right => Position.X + Offset.X + Radius;
+        public override float Top => Position.Y + Offset.Y - Radius;
+        public override float Bottom => Position.Y + Offset.Y + Radius;
+
+        public BoundingCircle(float radius)
         {
-            Position = new Vector2(x, y);
             Radius = radius;
         }
 
@@ -92,6 +104,9 @@ namespace HonasGame.ECS.Components.Physics
         {
             if (other == null) return false;
             bool collision = false;
+            Vector2 origPos = Position;
+
+            Position += offset;
 
             if (other is BoundingRectangle br)
             {
@@ -101,6 +116,8 @@ namespace HonasGame.ECS.Components.Physics
             {
                 collision = CollisionResolver.Collides(this, bc);
             }
+
+            Position = origPos;
 
             return collision;
         }

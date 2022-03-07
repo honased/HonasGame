@@ -17,6 +17,7 @@ namespace HonasGame.ECS.Components.Physics
 
         public bool MoveX(float velocity, int tag)
         {
+            _collider.Shape.Position = _transform.Position;
             int xAmount = (int)Math.Round(velocity);
 
             int sign = Math.Sign(xAmount);
@@ -32,6 +33,7 @@ namespace HonasGame.ECS.Components.Physics
 
         public bool MoveY(float velocity, int tag)
         {
+            _collider.Shape.Position = _transform.Position;
             int yAmount = (int)Math.Round(velocity);
 
             int sign = Math.Sign(yAmount);

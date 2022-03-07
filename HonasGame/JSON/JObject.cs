@@ -44,5 +44,10 @@ namespace HonasGame.JSON
 
             return default(T);
         }
+
+        public bool CheckField(string key)
+        {
+            return Fields.ContainsKey(key);
+        }
     }
 }

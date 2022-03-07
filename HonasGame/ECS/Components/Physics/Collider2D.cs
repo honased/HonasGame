@@ -8,6 +8,8 @@ namespace HonasGame.ECS.Components.Physics
     {
         public CollisionShape Shape { get; set; }
 
+        public Transform2D Transform { get; set; }
+
         public int Tag { get; set; } = 0;
 
         public Collider2D(Entity parent) : base(parent)
@@ -50,6 +52,7 @@ namespace HonasGame.ECS.Components.Physics
         {
             entity = null;
             if (Shape == null) return false;
+            if (tag == 0) return false;
 
             foreach (Entity e in Scene.GetEntities())
             {
@@ -72,33 +75,28 @@ namespace HonasGame.ECS.Components.Physics
             return false;
         }
 
-        static Texture2D _pointTexture;
-        public static void DrawRectangle(SpriteBatch spriteBatch, Rectangle rectangle, Color color, int lineWidth)
+        public override void Update(GameTime gameTime)
         {
-            if (_pointTexture == null)
+            if(Transform != null && Shape != null)
             {
-                _pointTexture = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
-                _pointTexture.SetData<Color>(new Color[] { Color.White });
+                Shape.Position = Transform.Position;
             }
-
-            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X, rectangle.Y, lineWidth, rectangle.Height + lineWidth), color);
-            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X, rectangle.Y, rectangle.Width + lineWidth, lineWidth), color);
-            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X + rectangle.Width, rectangle.Y, lineWidth, rectangle.Height + lineWidth), color);
-            spriteBatch.Draw(_pointTexture, new Rectangle(rectangle.X, rectangle.Y + rectangle.Height, rectangle.Width + lineWidth, lineWidth), color);
         }
 
+#if DEBUG
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
-#if DEBUG
+            if (!Debugger.Debug) return;
+
             if( Shape is BoundingRectangle rect )
             {
-                //DrawRectangle(spriteBatch, new Rectangle((int)rect.Left, (int)rect.Top, (int)rect.Size.X, (int)rect.Size.Y), Color.Red, 1);
+                spriteBatch.DrawRectangle(new Rectangle((int)rect.Left, (int)rect.Top, (int)rect.Size.X, (int)rect.Size.Y), Color.Red, 1);
             }
             else if(Shape is BoundingCircle circle)
             {
-                //spriteBatch.DrawCircle(circle.Center, circle.Radius, Color.White);
+                spriteBatch.DrawCircle(circle.Center, circle.Radius, Color.White);
             }
-#endif
         }
+#endif
     }
 }
