@@ -15,7 +15,7 @@ namespace HonasGame.ECS.Components.Physics
             _transform = Parent.GetComponent<Transform2D>();
         }
 
-        public bool MoveX(float velocity, int tag)
+        public bool MoveX(float velocity, uint tag)
         {
             _collider.Shape.Position = _transform.Position;
             int xAmount = (int)Math.Round(velocity);
@@ -31,7 +31,7 @@ namespace HonasGame.ECS.Components.Physics
             return xAmount != 0;
         }
 
-        public bool MoveY(float velocity, int tag)
+        public bool MoveY(float velocity, uint tag)
         {
             _collider.Shape.Position = _transform.Position;
             int yAmount = (int)Math.Round(velocity);

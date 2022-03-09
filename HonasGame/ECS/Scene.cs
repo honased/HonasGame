@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HonasGame.Particles;
 using HonasGame.Tiled;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,6 +12,7 @@ namespace HonasGame.ECS
         private static List<List<Entity>> _entities = new List<List<Entity>>();
         private static List<string> _layers = new List<string>();
         private static List<Tuple<string, Entity>> _addEntities = new List<Tuple<string, Entity>>();
+        private static List<ParticleSystem> _particleSystems = new List<ParticleSystem>();
 
         public static void AddLayer(string layer)
         {
@@ -26,6 +28,20 @@ namespace HonasGame.ECS
         public static void ClearLayers()
         {
             _layers.Clear();
+        }
+
+        public static void AddParticleSystem(ParticleSystem system)
+        {
+            _particleSystems.Add(system);
+            _particleSystems.Sort((x, y) =>
+            {
+                return x.DrawOrder.CompareTo(y.DrawOrder);
+            });
+        }
+
+        public static void RemoveParticleSystem(ParticleSystem system)
+        {
+            _particleSystems.Remove(system);
         }
 
         public static void AddEntity(Entity e, string layer = null)
@@ -101,6 +117,11 @@ namespace HonasGame.ECS
                     else if (e.Enabled) e.Update(gameTime);
                 }
             }
+
+            foreach(ParticleSystem ps in _particleSystems)
+            {
+                ps.Update(gameTime);
+            }
         }
 
         public static void Clear(Entity exclude = null)
@@ -119,14 +140,23 @@ namespace HonasGame.ECS
             }
         }
 
-        public static void Draw(GameTime gameTime, SpriteBatch spriteBatch)
+        public static void Draw(GameTime gameTime, SpriteBatch spriteBatch, Vector2 windowSize)
         {
-            for(int i = 0; i < _layers.Count; i++)
+            var mat = Camera.GetMatrix(windowSize);
+            
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: mat);
+            for (int i = 0; i < _layers.Count; i++)
             {
                 foreach (Entity e in _entities[i])
                 {
                     e.Draw(gameTime, spriteBatch);
                 }
+            }
+            spriteBatch.End();
+
+            foreach (ParticleSystem ps in _particleSystems)
+            {
+                ps.Draw(spriteBatch, gameTime, mat);
             }
         }
     }

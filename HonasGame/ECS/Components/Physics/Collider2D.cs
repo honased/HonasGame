@@ -10,7 +10,7 @@ namespace HonasGame.ECS.Components.Physics
 
         public Transform2D Transform { get; set; }
 
-        public int Tag { get; set; } = 0;
+        public uint Tag { get; set; } = 0;
 
         public Collider2D(Entity parent) : base(parent)
         {
@@ -38,17 +38,34 @@ namespace HonasGame.ECS.Components.Physics
             return false;
         }
 
-        public bool CollidesWith(int tag)
+        /// <summary>
+        /// Check for a collision with another collider with the given tag
+        /// </summary>
+        /// <param name="tag">The tag to check for collisions with</param>
+        /// <returns>If there was a collision or not</returns>
+        public bool CollidesWith(uint tag)
         {
             return CollidesWith(tag, Vector2.Zero, out var e);
         }
 
-        public bool CollidesWith(int tag, out Entity e)
+        /// <summary>
+        /// Checks for collisions with any entity
+        /// </summary>
+        /// <returns>The other collider's tag</returns>
+        public Entity CollidesWithAnything(out uint tag)
+        {
+            CollidesWith(uint.MaxValue, Vector2.Zero, out var e);
+            if (e == null) tag = 0;
+            else tag = e.GetComponent<Collider2D>().Tag;
+            return e;
+        }
+
+        public bool CollidesWith(uint tag, out Entity e)
         {
             return CollidesWith(tag, Vector2.Zero, out e);
         }
 
-        public bool CollidesWith(int tag, Vector2 offset, out Entity entity)
+        public bool CollidesWith(uint tag, Vector2 offset, out Entity entity)
         {
             entity = null;
             if (Shape == null) return false;
