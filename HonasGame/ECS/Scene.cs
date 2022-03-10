@@ -44,6 +44,15 @@ namespace HonasGame.ECS
             _particleSystems.Remove(system);
         }
 
+        public static T GetParticleSystem<T>() where T : ParticleSystem
+        {
+            foreach(ParticleSystem ps in _particleSystems)
+            {
+                if (ps is T) return ps as T;
+            }
+            return default(T);
+        }
+
         public static void AddEntity(Entity e, string layer = null)
         {
             if (layer == null) layer = _layers[0];
