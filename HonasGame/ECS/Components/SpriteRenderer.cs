@@ -62,7 +62,7 @@ namespace HonasGame.ECS.Components
         public SpriteRenderer(Entity parent) : base(parent)
         {
             ResetRenderData();
-            _position = Parent.GetComponent<Transform2D>();
+            Parent.GetComponent<Transform2D>(out _position);
         }
 
         public override void Update(GameTime gameTime)

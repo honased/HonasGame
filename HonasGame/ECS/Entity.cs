@@ -63,17 +63,19 @@ namespace HonasGame.ECS
             }
         }
 
-        public T GetComponent<T>() where T : Component
+        public bool GetComponent<T>(out T component) where T : Component
         {
+            component = null;
             foreach(Component c in _components)
             {
                 if(c is T actualComponent)
                 {
-                    return actualComponent;
+                    component = actualComponent;
+                    return true;
                 }
             }
 
-            return null;
+            return false;
         }
 
         public void Destroy()
@@ -82,10 +84,6 @@ namespace HonasGame.ECS
 
             Enabled = false;
             Cleanup();
-            foreach(Component c in GetComponents())
-            {
-                RemoveComponent(c);
-            }
             Destroyed = true;
         }
 

@@ -55,5 +55,11 @@ namespace HonasGame.Helper
             float angle = NextFloat(0, MathHelper.TwoPi);
             return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
         }
+
+        public static Vector2 NextDir(float min, float max)
+        {
+            float angle = NextFloat(min, max);
+            return new Vector2((float)Math.Cos(angle), (float)Math.Sin(angle));
+        }
     }
 }

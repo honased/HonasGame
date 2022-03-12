@@ -59,20 +59,22 @@ namespace HonasGame.ECS
             _addEntities.Add(new Tuple<string, Entity>(layer, e));
         }
 
-        public static T GetEntity<T>() where T : Entity
+        public static bool GetEntity<T>(out T entity) where T : Entity
         {
+            entity = null;
             foreach(List<Entity> le in _entities)
             {
                 foreach (Entity e in le)
                 {
-                    if (e is T entity)
+                    if (e is T en)
                     {
-                        return entity;
+                        entity = en;
+                        return true;
                     }
                 }
             }
 
-            return null;
+            return false;
         }
 
         public static IEnumerable<Entity> GetEntities()

@@ -60,6 +60,11 @@ namespace HonasGame.Particles
         public Color Color;
 
         /// <summary>
+        /// The original color of the particle. Default White
+        /// </summary>
+        public Color OriginalColor;
+
+        /// <summary>
         /// If this particle is still alive, and should be rendered
         /// <summary>
         public bool Active => TimeSinceStart < Lifetime;
@@ -132,6 +137,7 @@ namespace HonasGame.Particles
             this.AngularVelocity = angularVelocity;
             this.AngularAcceleration = angularAcceleration;
             this.Color = color;
+            this.OriginalColor = color;
         }
     }
 }

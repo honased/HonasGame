@@ -56,13 +56,34 @@ namespace HonasGame.ECS.Components.Physics
         {
             CollidesWith(uint.MaxValue, Vector2.Zero, out var e);
             if (e == null) tag = 0;
-            else tag = e.GetComponent<Collider2D>().Tag;
+            else
+            {
+                if(e.GetComponent<Collider2D>(out Collider2D collider))
+                {
+                    tag = collider.Tag;
+                }
+                else tag = 0;
+            }
             return e;
         }
 
         public bool CollidesWith(uint tag, out Entity e)
         {
             return CollidesWith(tag, Vector2.Zero, out e);
+        }
+
+        public bool CollidesWithGetTag(uint tag, Vector2 offset, out uint outTag)
+        {
+            outTag = 0;
+            if(CollidesWith(tag, offset, out Entity e))
+            {
+                if(e.GetComponent<Collider2D>(out var collider))
+                {
+                    outTag = collider.Tag;
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool CollidesWith(uint tag, Vector2 offset, out Entity entity)
@@ -111,7 +132,7 @@ namespace HonasGame.ECS.Components.Physics
             }
             else if(Shape is BoundingCircle circle)
             {
-                spriteBatch.DrawCircle(circle.Center, circle.Radius, Color.White);
+                spriteBatch.DrawCircle(circle.Center, circle.Radius, Color.Red);
             }
         }
 #endif
