@@ -48,6 +48,21 @@ namespace HonasGame
             }
         }
 
+        public static bool CheckAnalogPressed(bool leftStick, bool xAxis, int direction)
+        {
+            direction = Math.Sign(direction);
+            if (leftStick)
+            {
+                if (xAxis) return (_padState.ThumbSticks.Left.X * direction >= DEAD_ZONE) && !(_padStateOld.ThumbSticks.Left.X * direction >= DEAD_ZONE);
+                else return (_padState.ThumbSticks.Left.Y * -direction >= DEAD_ZONE) && !(_padStateOld.ThumbSticks.Left.Y * -direction >= DEAD_ZONE);
+            }
+            else
+            {
+                if (xAxis) return (_padState.ThumbSticks.Right.X * direction >= DEAD_ZONE) && !(_padStateOld.ThumbSticks.Right.X * direction >= DEAD_ZONE);
+                else return (_padState.ThumbSticks.Right.Y * -direction >= DEAD_ZONE) && !(_padStateOld.ThumbSticks.Right.Y * -direction >= DEAD_ZONE);
+            }
+        }
+
         public static bool IsButtonDown(Buttons button)
         {
             return _padState.IsButtonDown(button);
