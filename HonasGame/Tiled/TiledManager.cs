@@ -41,7 +41,7 @@ namespace HonasGame.Tiled
 
                 for (int i = 0; i < _gotoMap.Layers.Count; i++)
                 {
-                    Scene.AddLayer(_gotoMap.Layers[i].Name);
+                    Scene.AddLayer(_gotoMap.Layers[i].Name, 100 * i);
 
                     if (_gotoMap.Layers[i] is TiledTileLayer tileLayer)
                     {

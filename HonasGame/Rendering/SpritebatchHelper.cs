@@ -43,6 +43,17 @@ namespace HonasGame.Rendering
             spriteBatch.DrawLine(bl + halfX, tl + halfX, color, width);
         }
 
+        public static void DrawFilledRectangle(this SpriteBatch spriteBatch, Rectangle rect, Color color)
+        {
+            if (_1Pixel == null)
+            {
+                _1Pixel = new Texture2D(spriteBatch.GraphicsDevice, 1, 1);
+                _1Pixel.SetData(new Color[] { Color.White });
+            }
+
+            spriteBatch.Draw(_1Pixel, rect, color);
+        }
+
         public static void DrawCircle(this SpriteBatch spriteBatch, Vector2 center, float radius, Color color)
         {
             int steps = 10;

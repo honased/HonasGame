@@ -39,12 +39,12 @@ namespace HonasGame
             if(leftStick)
             {
                 if (xAxis) return _padState.ThumbSticks.Left.X * direction >= DEAD_ZONE;
-                else return _padState.ThumbSticks.Left.Y >= DEAD_ZONE * direction;
+                else return _padState.ThumbSticks.Left.Y * -direction >= DEAD_ZONE;
             }
             else
             {
-                if (xAxis) return _padState.ThumbSticks.Right.X >= DEAD_ZONE * direction;
-                else return _padState.ThumbSticks.Right.Y >= DEAD_ZONE * direction;
+                if (xAxis) return _padState.ThumbSticks.Right.X * direction >= DEAD_ZONE;
+                else return _padState.ThumbSticks.Right.Y * -direction >= DEAD_ZONE;
             }
         }
 

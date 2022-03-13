@@ -17,6 +17,8 @@ namespace HonasGame.ECS
 
         public bool Persistent { get; protected set; } = false;
 
+        public int Depth { get; set; }
+
         public Entity()
         {
             _components = new List<Component>();

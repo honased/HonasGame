@@ -4,25 +4,26 @@ using HonasGame.Particles;
 using HonasGame.Tiled;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Linq;
+using HonasGame.Helper;
 
 namespace HonasGame.ECS
 {
     public static class Scene
     {
-        private static List<List<Entity>> _entities = new List<List<Entity>>();
-        private static List<string> _layers = new List<string>();
-        private static List<Tuple<string, Entity>> _addEntities = new List<Tuple<string, Entity>>();
+        private static List<Entity> _entities = new List<Entity>();
+        private static Dictionary<string, int> _layers = new Dictionary<string, int>();
+        private static List<Entity> _addEntities = new List<Entity>();
         private static List<ParticleSystem> _particleSystems = new List<ParticleSystem>();
 
-        public static void AddLayer(string layer)
+        public static void AddLayer(string layer, int depth)
         {
-            if(_layers.Contains(layer))
+            if(_layers.ContainsKey(layer))
             {
                 throw new System.Exception($"Layer '{layer}' already exists!");
             }
 
-            _layers.Add(layer);
-            _entities.Add(new List<Entity>());
+            _layers.Add(layer, depth);
         }
 
         public static void ClearLayers()
@@ -55,22 +56,23 @@ namespace HonasGame.ECS
 
         public static void AddEntity(Entity e, string layer = null)
         {
-            if (layer == null) layer = _layers[0];
-            _addEntities.Add(new Tuple<string, Entity>(layer, e));
+            if(layer != null)
+            {
+                if (!_layers.ContainsKey(layer)) throw new Exception($"Layer '{layer}' does not exist!");
+                e.Depth = _layers[layer];
+            }
+            _addEntities.Add(e);
         }
 
         public static bool GetEntity<T>(out T entity) where T : Entity
         {
             entity = null;
-            foreach(List<Entity> le in _entities)
+            foreach (Entity e in _entities)
             {
-                foreach (Entity e in le)
+                if (e is T en)
                 {
-                    if (e is T en)
-                    {
-                        entity = en;
-                        return true;
-                    }
+                    entity = en;
+                    return true;
                 }
             }
 
@@ -79,17 +81,14 @@ namespace HonasGame.ECS
 
         public static IEnumerable<Entity> GetEntities()
         {
-            foreach (List<Entity> le in _entities)
+            foreach (Entity e in _entities)
             {
-                foreach (Entity e in le)
-                {
-                    yield return e;
-                }
+                yield return e;
             }
 
-            foreach (Tuple<string, Entity> tuple in _addEntities)
+            foreach (Entity e in _addEntities)
             {
-                yield return tuple.Item2;
+                yield return e;
             }
         }
 
@@ -104,32 +103,29 @@ namespace HonasGame.ECS
 
             while (_addEntities.Count > 0)
             {
-                if (!_addEntities[0].Item2.Destroyed)
+                if (!_addEntities[0].Destroyed)
                 {
-                    string layer = _addEntities[0].Item1;
-                    int index = _layers.IndexOf(layer);
-                    if (index == -1) throw new Exception($"Layer '{layer}' does not exist!");
-                    _entities[index].Add(_addEntities[0].Item2);
+                    _entities.Add(_addEntities[0]);
                 }
                 _addEntities.RemoveAt(0);
             }
 
-            for (int j = 0; j < _entities.Count; j++)
+            // Insertion sort b/c the list will generally be sorted or almost sorted resulting in O(n).
+            // Insertion is also inplace (preferred) and stable (necessary).
+            Sorting.InsertionSort(_entities, x => x.Depth);
+
+            for (int i = 0; i < _entities.Count; i++)
             {
-                List<Entity> entitiesList = _entities[j];
-                for (int i = 0; i < entitiesList.Count; i++)
+                Entity e = _entities[i];
+                if (e.Destroyed)
                 {
-                    Entity e = entitiesList[i];
-                    if (e.Destroyed)
-                    {
-                        entitiesList.RemoveAt(i);
-                        i--;
-                    }
-                    else if (e.Enabled) e.Update(gameTime);
+                    _entities.RemoveAt(i);
+                    i--;
                 }
+                else if (e.Enabled) e.Update(gameTime);
             }
 
-            foreach(ParticleSystem ps in _particleSystems)
+            foreach (ParticleSystem ps in _particleSystems)
             {
                 ps.Update(gameTime);
             }
@@ -137,17 +133,14 @@ namespace HonasGame.ECS
 
         public static void Clear(Entity exclude = null)
         {
-            foreach(var tuple in _addEntities)
+            foreach(Entity e in _addEntities)
             {
-                if(tuple.Item2 != exclude && !tuple.Item2.Persistent) tuple.Item2.Destroy();
+                if(e != exclude && !e.Persistent) e.Destroy();
             }
 
-            for (int i = 0; i < _layers.Count; i++)
+            foreach (Entity e in _entities)
             {
-                foreach (Entity e in _entities[i])
-                {
-                    if (e != exclude && !e.Persistent) e.Destroy();
-                }
+                if (e != exclude && !e.Persistent) e.Destroy();
             }
         }
 
@@ -156,12 +149,9 @@ namespace HonasGame.ECS
             var mat = Camera.GetMatrix(windowSize);
             
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: mat);
-            for (int i = 0; i < _layers.Count; i++)
+            foreach (Entity e in _entities)
             {
-                foreach (Entity e in _entities[i])
-                {
-                    e.Draw(gameTime, spriteBatch);
-                }
+                e.Draw(gameTime, spriteBatch);
             }
             spriteBatch.End();
 
