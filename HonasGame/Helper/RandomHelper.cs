@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿// Based from Nathan Bean's RandomHelper class.
+
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
