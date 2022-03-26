@@ -19,8 +19,8 @@ namespace HonasGame.Tiled
         public string Type { get; private set; }
         public bool FlippedHorizontally { get; private set; }
         public bool FlippedVertically { get; private set; }
-
         public TiledPolyLine PolyLine { get; private set; }
+        public Dictionary<string, object> CustomProperties { get; private set; }
 
         public class TiledPolyLine
         {
@@ -59,6 +59,17 @@ namespace HonasGame.Tiled
             else
             {
                 PolyLine = null;
+            }
+
+            CustomProperties = new Dictionary<string, object>();
+            if(jObj.CheckField("properties"))
+            {
+                JArray arr = jObj.GetValue<JArray>("properties");
+                for(int i = 0; i < arr.Count; i++)
+                {
+                    JObject propObj = arr[i] as JObject;
+                    CustomProperties.Add(propObj.GetValue<string>("name"), propObj["value"]);
+                }
             }
         }
     }
