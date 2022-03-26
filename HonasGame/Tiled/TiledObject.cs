@@ -20,6 +20,23 @@ namespace HonasGame.Tiled
         public bool FlippedHorizontally { get; private set; }
         public bool FlippedVertically { get; private set; }
 
+        public TiledPolyLine PolyLine { get; private set; }
+
+        public class TiledPolyLine
+        {
+            public List<Tuple<float, float>> Positions { get; private set; }
+            public TiledPolyLine(JArray jArr, float x, float y)
+            {
+                Positions = new List<Tuple<float, float>>();
+
+                for(int i = 0; i < jArr.Count; i++)
+                {
+                    JObject jObj = jArr[i] as JObject;
+                    Positions.Add(new Tuple<float, float>((float)jObj.GetValue<double>("x") + x, (float)jObj.GetValue<double>("y") + y));
+                }
+            }
+        }
+
         public TiledObject(JObject jObj)
         {
             X = (float)jObj.GetValue<double>("x");
@@ -34,6 +51,14 @@ namespace HonasGame.Tiled
                 int gid = (int)jObj.GetValue<double>("gid");
                 FlippedHorizontally = (gid & FLIPPED_HORIZONTALLY) > 0;
                 FlippedVertically = (gid & FLIPPED_VERTICALLY) > 0;
+            }
+            if(jObj.CheckField("polyline"))
+            {
+                PolyLine = new TiledPolyLine(jObj.GetValue<JArray>("polyline"), X, Y);
+            }
+            else
+            {
+                PolyLine = null;
             }
         }
     }
