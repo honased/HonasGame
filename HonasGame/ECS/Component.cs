@@ -9,6 +9,8 @@ namespace HonasGame.ECS
 
         public bool Enabled { get; set; } = true;
 
+        public bool Visible { get; set; } = true;
+
         public Component(Entity parent)
         {
             parent.RegisterComponent(this);
