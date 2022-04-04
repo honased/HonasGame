@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 
 namespace HonasGame.Assets
@@ -20,7 +21,12 @@ namespace HonasGame.Assets
         public struct Frame
         {
             public float duration;
-            public List<Color[]> layers;
+            public Color[] pixels;
+        }
+
+        public struct Layer
+        {
+            public byte alpha;
         }
 
         private BinaryReader _br;
@@ -28,6 +34,7 @@ namespace HonasGame.Assets
         private Color[] _palette;
 
         public Frame[] Frames { get; private set; }
+        public List<Layer> Layers { get; private set; }
         public int FrameCount => Frames.Length;
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -79,16 +86,25 @@ namespace HonasGame.Assets
 
         public Aseprite(string file)
         {
+            _br = new BinaryReader(File.OpenRead(file));
+            Layers = new List<Layer>();
+
             DWord(); // File Size
             if (Word() != 0xA5E0) throw new Exception("Error! Not an Aseprite File"); // Magic Number
             Frames = new Frame[Word()];
 
-            // Initialize Frames
-            for (int i = 0; i < FrameCount; i++) Frames[i].layers = new List<Color[]>();
-
             Width = Word();
             Height = Word();
-            _colorFormat = (ColorFormat)Word();
+
+            for (int i = 0; i < FrameCount; i++) Frames[i].pixels = new Color[Width * Height];
+
+            switch(Word())
+            {
+                case 32: _colorFormat = ColorFormat.RGBA;       break;
+                case 16: _colorFormat = ColorFormat.Grayscale;  break;
+                case 8:  _colorFormat = ColorFormat.Indexed;    break;
+                default: throw new Exception("Unknown color format");
+            }
             DWord(); // Valid layer opacity
             Word(); // Deprecated frame speed
             DWord(); // Set be 0
@@ -104,6 +120,8 @@ namespace HonasGame.Assets
             Word(); // Grid Height
             Bytes(84); // For future (set to zero)
             ReadFrames();
+
+            _br.Close();
         }
 
         private void ReadFrames()
@@ -112,28 +130,23 @@ namespace HonasGame.Assets
             {
                 uint numChunks;
 
-                Frame f = new Frame();
-                f.layers = new List<Color[]>();
-
                 DWord(); // Bytes in this frame
                 if (Word() != 0xF1FA) throw new Exception("Error! Not a frame!");
                 numChunks = Word();
-                f.duration = Word() / 1000.0f;
+                Frames[i].duration = Word() / 1000.0f;
                 Bytes(2); // For future (set to zero)
                 uint newNumChunks = DWord();
                 if (newNumChunks > 0) numChunks = newNumChunks;
 
-                while(numChunks-- > 0) ReadChunk(ref f);
-
-                Frames[i] = f;
+                while(numChunks-- > 0) ReadChunk(ref Frames[i]);
             }
         }
 
         private void ReadChunk(ref Frame frame)
         {
-            long seekLocation = DWord();
+            long seekLocation = Position();
+            seekLocation += DWord();
             ushort chunkType = Word();
-            seekLocation += Position();
 
             switch(chunkType)
             {
@@ -149,12 +162,100 @@ namespace HonasGame.Assets
 
                 // Layer Chunk
                 case 0x2004:
-                    
-                    // Ignore rest for now
+                    Layer l = new Layer();
+
+                    Word(); // Flags
+                    Word(); // Layer Type
+                    Word(); // Layer child level
+                    Word(); // width
+                    Word(); // height
+                    Word(); // Blend mode
+                    l.alpha = Byte();
+                    Bytes(3); // For future (set to zero)
+                    String(); // Name
+
+                    Layers.Add(l);
+                    break;
+
+                // Cel Chunk
+                case 0x2005:
+                    ushort layerIndex = Word();
+                    short xPos = Short(), yPos = Short();
+                    byte opacity = Byte();
+                    ushort celType = Word();
+                    Bytes(7); // For Future
+                    switch(celType)
+                    {
+                        case 2:
+                            DeflateStream ds;
+                            ushort width = Word(), height = Word();
+                            byte[] data = new byte[width * height * 4];
+                            Bytes(2); // For deflate stream
+                            ds = new DeflateStream(_br.BaseStream, CompressionMode.Decompress);
+                            ds.Read(data, 0, width * height * 4);
+                            int colorIndex = 0;
+                            
+                            for(short y = yPos; y < yPos + height; y++ )
+                            {
+                                for(short x = xPos; x < xPos + width; x++)
+                                {
+                                    int index = (y * Width) + x;
+                                    ApplyColor(ref frame, index, Color.FromNonPremultiplied(data[colorIndex], data[colorIndex + 1], data[colorIndex + 2], data[colorIndex + 3]), Layers[layerIndex].alpha);
+                                    colorIndex += 4;
+                                }
+                            }
+                            break;
+                    }
+                    break;
+
+                case 0x2007:
+                    // Ignore for now
+                    break;
+
+                // Palette Chunk
+                case 0x2019:
+                    _palette = new Color[DWord()];
+                    uint __startIndex = DWord(), __endIndex = DWord();
+                    Bytes(8); // For future (set to zero)
+                    for(uint i = __startIndex; i <= __endIndex; i++)
+                    {
+                        bool hasName = (Word() & 1) > 0;
+                        _palette[i] = Color.FromNonPremultiplied(Byte(), Byte(), Byte(), Byte());
+                        if (hasName) String();
+                    }
                     break;
             }
 
             Seek(seekLocation);
+        }
+
+        private void ApplyColor(ref Frame frame, int index, Color source, byte alpha)
+        {
+            Color destination = frame.pixels[index];
+
+            if(source.A != 0)
+            {
+                Color finalColor = Color.Beige;
+                if (destination.A == 0) finalColor = source;
+                else
+                {
+                    var sa = MUL_UN8(source.A, alpha);
+                    var ra = destination.A + sa - MUL_UN8(destination.A, sa);
+
+                    finalColor.R = (byte)(destination.R + (source.R - destination.R) * sa / ra);
+                    finalColor.G = (byte)(destination.G + (source.G - destination.G) * sa / ra);
+                    finalColor.B = (byte)(destination.B + (source.B - destination.B) * sa / ra);
+                    finalColor.A = (byte)ra;
+                }
+
+                frame.pixels[index] = finalColor;
+            }
+        }
+
+        private int MUL_UN8(int a, int b)
+        {
+            var t = (a * b) + 0x80;
+            return (((t >> 8) + t) >> 8);
         }
     }
 }
