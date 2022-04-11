@@ -148,12 +148,12 @@ namespace HonasGame.ECS
         {
             var mat = Camera.GetMatrix(windowSize);
             
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: mat);
+            //spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: mat);
             foreach (Entity e in _entities)
             {
                 e.Draw(gameTime, spriteBatch);
             }
-            spriteBatch.End();
+            //spriteBatch.End();
 
             foreach (ParticleSystem ps in _particleSystems)
             {
