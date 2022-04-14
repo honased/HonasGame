@@ -15,32 +15,34 @@ namespace HonasGame.ECS.Components.Physics
             Parent.GetComponent<Transform2D>(out _transform);
         }
 
-        public bool MoveX(float velocity, uint tag)
+        public Entity MoveX(float velocity, uint tag)
         {
             _collider.Shape.Position = _transform.Position;
             int xAmount = (int)Math.Round(velocity);
 
             int sign = Math.Sign(xAmount);
-            while(!_collider.CollidesWith(tag, Vector2.UnitX * sign, out var e) && xAmount != 0) 
+            Entity e = null;
+            while(!_collider.CollidesWith(tag, Vector2.UnitX * sign, out e) && xAmount != 0) 
             { 
                 xAmount -= sign;
                 _transform.Position += Vector2.UnitX * sign;
                 _collider.Shape.Position = _transform.Position;
             }
 
-            return xAmount != 0;
+            return e;
         }
 
-        public bool MoveY(float velocity, uint tag, uint oneWayTag = 0)
+        public Entity MoveY(float velocity, uint tag, uint oneWayTag = 0)
         {
             _collider.Shape.Position = _transform.Position;
             int yAmount = (int)Math.Round(velocity);
 
             int sign = Math.Sign(yAmount);
             tag |= oneWayTag;
+            Entity e = null;
             while (yAmount != 0)
             {
-                if(_collider.CollidesWith(tag, Vector2.UnitY * sign, out var e))
+                if(_collider.CollidesWith(tag, Vector2.UnitY * sign, out e))
                 {
                     if (e.GetComponent<Collider2D>(out var eCollider) && (eCollider.Tag & oneWayTag) > 0)
                     {
@@ -53,7 +55,7 @@ namespace HonasGame.ECS.Components.Physics
                 _collider.Shape.Position = _transform.Position;
             }
 
-            return yAmount != 0;
+            return e;
         }
 
         public override void Update(GameTime gameTime)

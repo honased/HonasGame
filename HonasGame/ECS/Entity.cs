@@ -47,6 +47,14 @@ namespace HonasGame.ECS
             }
         }
 
+        public virtual void Draw3D(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            foreach (Component c in _components)
+            {
+                c.Draw3D(gameTime, spriteBatch);
+            }
+        }
+
         public void RegisterComponent(Component component)
         {
             _components.Add(component);

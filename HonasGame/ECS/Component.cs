@@ -26,5 +26,10 @@ namespace HonasGame.ECS
         {
             // Do nothing
         }
+
+        public virtual void Draw3D(GameTime gameTime, SpriteBatch spriteBatch)
+        {
+            // Do nothing
+        }
     }
 }
