@@ -93,7 +93,8 @@ namespace HonasGame.ECS.Components
 
         public void CenterOrigin()
         {
-            Origin = new Vector2(_animation.Frames[_frameIndex].Width / 2.0f, _animation.Frames[_frameIndex].Height / 2.0f);
+            if (_animation.Frames?.Length > 0) Origin = new Vector2(_animation.Frames[_frameIndex].Width / 2.0f, _animation.Frames[_frameIndex].Height / 2.0f);
+            else Origin = new Vector2(_sprite.Texture.Width / 2.0f, _sprite.Texture.Height / 2.0f);
         }
     }
 }

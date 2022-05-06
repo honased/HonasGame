@@ -39,10 +39,14 @@ namespace HonasGame.Tiled
                 Scene.ClearLayers();
                 Camera.Bounds = new Rectangle(0, 0, _gotoMap.Width * _gotoMap.TileWidth, _gotoMap.Height * _gotoMap.TileHeight);
 
-                for (int i = 0; i < _gotoMap.Layers.Count; i++)
+                // Add layers first, otherwise objects trying to add will not exist
+                for(int i = 0; i < _gotoMap.Layers.Count; i++)
                 {
                     Scene.AddLayer(_gotoMap.Layers[i].Name, 100 * i);
+                }
 
+                for (int i = 0; i < _gotoMap.Layers.Count; i++)
+                {
                     if (_gotoMap.Layers[i] is TiledTileLayer tileLayer)
                     {
                         var tilesEntity = new TiledTilesEntity(tileLayer.Width, tileLayer.Height, _gotoMap.TileWidth, _gotoMap.TileHeight, tileLayer.Data);
